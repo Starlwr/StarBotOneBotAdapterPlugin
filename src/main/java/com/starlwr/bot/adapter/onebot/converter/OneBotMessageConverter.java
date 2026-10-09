@@ -14,6 +14,7 @@ import org.springframework.stereotype.Component;
  *     <li>{face=1}: 表情</li>
  *     <li>{at=all}: @全体成员</li>
  *     <li>{at=123456}: @指定成员</li>
+ *     <li>{reply=...}: 引用消息</li>
  *     <li>{image_url=https://example.com/image.jpg}: 网络图片</li>
  *     <li>{image_path=/opt/image.jpg}: 本地图片</li>
  *     <li>{image_base64=...}: Base64 图片</li>
@@ -61,6 +62,11 @@ public class OneBotMessageConverter {
                         String target = placeholder.substring(4, placeholder.length() - 1);
                         if (StringUtil.isNotBlank(target)) {
                             elements.add(createAtElement(target));
+                        }
+                    } else if (placeholder.startsWith("{reply=")) {
+                        String messageId = placeholder.substring(7, placeholder.length() - 1);
+                        if (StringUtil.isNotBlank(messageId)) {
+                            elements.add(createReplyElement(messageId));
                         }
                     } else if (placeholder.startsWith("{image_url=")) {
                         String url = placeholder.substring(11, placeholder.length() - 1);
@@ -129,6 +135,20 @@ public class OneBotMessageConverter {
         element.put("type", "at");
         JSONObject data = new JSONObject();
         data.put("qq", target);
+        element.put("data", data);
+        return element;
+    }
+
+    /**
+     * 创建引用元素
+     * @param messageId 被引用的消息 ID
+     * @return 引用元素
+     */
+    private JSONObject createReplyElement(String messageId) {
+        JSONObject element = new JSONObject();
+        element.put("type", "reply");
+        JSONObject data = new JSONObject();
+        data.put("id", messageId);
         element.put("data", data);
         return element;
     }

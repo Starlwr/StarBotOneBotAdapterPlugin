@@ -45,6 +45,8 @@ public class OneBotWebsocketService {
 
     private final StarBotMailService mailService;
 
+    private final OneBotCommandAdapter commandAdapter;
+
     private final Map<String, ScheduledFuture<?>> detectTasks = new HashMap<>();
 
     private final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss").withZone(ZoneId.systemDefault());
@@ -52,11 +54,12 @@ public class OneBotWebsocketService {
     private volatile boolean running = true;
 
     @Autowired
-    public OneBotWebsocketService(TaskScheduler taskScheduler, @Qualifier("oneBotThreadPool") ThreadPoolTaskExecutor executor, OneBotAdapterPluginProperties properties, StarBotMailService mailService) {
+    public OneBotWebsocketService(TaskScheduler taskScheduler, @Qualifier("oneBotThreadPool") ThreadPoolTaskExecutor executor, OneBotAdapterPluginProperties properties, StarBotMailService mailService, OneBotCommandAdapter commandAdapter) {
         this.taskScheduler = taskScheduler;
         this.executor = executor;
         this.properties = properties;
         this.mailService = mailService;
+        this.commandAdapter = commandAdapter;
     }
 
     /**
@@ -196,9 +199,9 @@ public class OneBotWebsocketService {
 
         private boolean connectTimeout = false;
 
-        private Boolean tokenVerify = null;
+        private volatile Boolean tokenVerify = null;
 
-        private Instant lastReceiveTime = Instant.now();
+        private volatile Instant lastReceiveTime = Instant.now();
 
         private Instant lastAlarmTime = null;
 
@@ -264,48 +267,29 @@ public class OneBotWebsocketService {
                         String fullMessage = messageBuffer.toString();
                         messageBuffer.setLength(0);
 
-                        executor.submit(() -> {
-                            try {
-                                JSONObject rawMessage = JSON.parseObject(fullMessage);
-                                if (tokenVerify == null) {
-                                    if ("1403".equals(rawMessage.getString("retcode"))) {
-                                        tokenVerify = false;
-                                        log.error("{} 的 OneBot Websocket Token 配置不正确, 将无法处理消息, 请检查 Token 配置", sender.getName());
-                                    }
-                                    if ("meta_event".equals(rawMessage.getString("post_type")) && "lifecycle".equals(rawMessage.getString("meta_event_type")) && "connect".equals(rawMessage.getString("sub_type"))) {
-                                        tokenVerify = true;
-                                        log.info("{} 的 OneBot Websocket Token 认证成功", sender.getName());
-
-                                        if (service.properties.getDetect().isEnableWebsocketDetect()) {
-                                            lastReceiveTime = Instant.now();
-                                            service.startDetect(this);
-                                        }
-                                    }
-                                }
-
-                                if (service.properties.getDetect().isEnableWebsocketDetect() && "message".equals(rawMessage.getString("post_type"))) {
-                                    lastReceiveTime = Instant.now();
-                                }
-
-                                if ("status".equalsIgnoreCase(rawMessage.getString("raw_message"))) {
-                                    JSONObject operation = new JSONObject();
-                                    operation.put("reply", "Running on StarBot v3.0.0");
-
-                                    JSONObject params = new JSONObject();
-                                    params.put("context", rawMessage);
-                                    params.put("operation", operation);
-
-                                    JSONObject response = new JSONObject();
-                                    response.put("action", ".handle_quick_operation");
-                                    response.put("params", params);
-
-                                    session.sendMessage(new TextMessage(response.toJSONString()));
-                                }
-                            } catch (Exception e) {
-                                log.error("处理 {} 的 OneBot Websocket 消息时发生异常", sender.getName(), e);
-                                messageBuffer.setLength(0);
+                        JSONObject received = JSON.parseObject(fullMessage);
+                        if (tokenVerify == null) {
+                            if ("1403".equals(received.getString("retcode"))) {
+                                tokenVerify = false;
+                                log.error("{} 的 OneBot Websocket Token 配置不正确, 将无法处理消息, 请检查 Token 配置", sender.getName());
                             }
-                        });
+                            if ("meta_event".equals(received.getString("post_type")) && "lifecycle".equals(received.getString("meta_event_type")) && "connect".equals(received.getString("sub_type"))) {
+                                tokenVerify = true;
+                                log.info("{} 的 OneBot Websocket Token 认证成功", sender.getName());
+
+                                if (service.properties.getDetect().isEnableWebsocketDetect()) {
+                                    lastReceiveTime = Instant.now();
+                                    service.startDetect(this);
+                                }
+                            }
+                        }
+
+                        if ("message".equals(received.getString("post_type"))) {
+                            if (service.properties.getDetect().isEnableWebsocketDetect()) {
+                                lastReceiveTime = Instant.now();
+                            }
+                            service.commandAdapter.accept(sender, received);
+                        }
                     }
                 }
             } catch (Exception e) {

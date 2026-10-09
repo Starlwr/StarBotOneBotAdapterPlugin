@@ -8,6 +8,9 @@ import com.starlwr.bot.adapter.onebot.model.OneBotSender;
  * StarBot OneBot HTTP 服务接口
  */
 public interface OneBotHttpAdapter {
+    @OneBotApi(name = "获取消息", url = "/get_msg")
+    JSONObject getMsg(OneBotSender sender, JSONObject params);
+
     @OneBotApi(name = "获取版本信息", url = "/get_version_info")
     JSONObject getVersionInfo(OneBotSender sender, JSONObject params);
 
