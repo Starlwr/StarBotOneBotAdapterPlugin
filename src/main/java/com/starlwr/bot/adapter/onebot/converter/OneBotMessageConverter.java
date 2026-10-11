@@ -3,8 +3,8 @@ package com.starlwr.bot.adapter.onebot.converter;
 import com.alibaba.fastjson2.JSONArray;
 import com.alibaba.fastjson2.JSONObject;
 import com.starlwr.bot.core.plugin.StarBotComponent;
-import com.starlwr.bot.core.util.StringUtil;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Component;
 
 /**
@@ -34,7 +34,7 @@ public class OneBotMessageConverter {
 
         int braceStart = content.indexOf("{");
 
-        while (!content.isEmpty()) {
+        while (StringUtils.isNotEmpty(content)) {
             if (braceStart == -1) {
                 elements.add(createTextElement(content));
                 content = "";
@@ -60,27 +60,27 @@ public class OneBotMessageConverter {
                         }
                     } else if (placeholder.startsWith("{at=")) {
                         String target = placeholder.substring(4, placeholder.length() - 1);
-                        if (StringUtil.isNotBlank(target)) {
+                        if (StringUtils.isNotBlank(target)) {
                             elements.add(createAtElement(target));
                         }
                     } else if (placeholder.startsWith("{reply=")) {
                         String messageId = placeholder.substring(7, placeholder.length() - 1);
-                        if (StringUtil.isNotBlank(messageId)) {
+                        if (StringUtils.isNotBlank(messageId)) {
                             elements.add(createReplyElement(messageId));
                         }
                     } else if (placeholder.startsWith("{image_url=")) {
                         String url = placeholder.substring(11, placeholder.length() - 1);
-                        if (StringUtil.isNotBlank(url)) {
+                        if (StringUtils.isNotBlank(url)) {
                             elements.add(createUrlImageElement(url));
                         }
                     } else if (placeholder.startsWith("{image_path=")) {
                         String path = placeholder.substring(12, placeholder.length() - 1);
-                        if (StringUtil.isNotBlank(path)) {
+                        if (StringUtils.isNotBlank(path)) {
                             elements.add(createPathImageElement(path));
                         }
                     } else if (placeholder.startsWith("{image_base64=")) {
                         String base64 = placeholder.substring(14, placeholder.length() - 1);
-                        if (StringUtil.isNotBlank(base64)) {
+                        if (StringUtils.isNotBlank(base64)) {
                             elements.add(createBase64ImageElement(base64));
                         }
                     } else {

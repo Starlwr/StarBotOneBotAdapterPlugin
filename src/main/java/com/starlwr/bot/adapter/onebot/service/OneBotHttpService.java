@@ -12,15 +12,17 @@ import com.starlwr.bot.adapter.onebot.model.OneBotSender;
 import com.starlwr.bot.core.enums.PushTargetType;
 import com.starlwr.bot.core.plugin.StarBotComponent;
 import com.starlwr.bot.core.service.StarBotMailService;
-import com.starlwr.bot.core.util.StringUtil;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang3.BooleanUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.event.EventListener;
 import org.springframework.core.annotation.Order;
-import org.springframework.scheduling.TaskScheduler;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
+import org.springframework.scheduling.TaskScheduler;
 import org.springframework.web.client.HttpClientErrorException;
 
 import java.time.Duration;
@@ -107,7 +109,7 @@ public class OneBotHttpService {
             JSONObject params = new JSONObject();
 
             JSONArray elements = converter.convert(message.getContent());
-            if (elements.isEmpty()) {
+            if (CollectionUtils.isEmpty(elements)) {
                 return new JSONObject().fluentPut("code", ResultCode.EMPTY_MESSAGE.getCode()).fluentPut("message", ResultCode.EMPTY_MESSAGE.getMsg()).fluentPut("id", null);
             }
 
@@ -147,18 +149,18 @@ public class OneBotHttpService {
             String alarm = "";
             try {
                 JSONObject status = http.getStatus(sender, new JSONObject());
-                if (!Boolean.TRUE.equals(status.getBoolean("good"))) {
+                if (BooleanUtils.isNotTrue(status.getBoolean("good"))) {
                     alarm = sender.getName() + " 的 OneBot 服务状态异常, 请检查服务状态";
                 }
 
-                if (!Boolean.TRUE.equals(status.getBoolean("online"))) {
+                if (BooleanUtils.isNotTrue(status.getBoolean("online"))) {
                     alarm = sender.getName() + " 的 OneBot 服务登录状态异常, 请检查账号是否已掉线";
                 }
             } catch (Exception e) {
                 alarm = sender.getName() + " 的 OneBot HTTP 服务不可用, 请检查服务状态";
             }
 
-            if (StringUtil.isBlank(alarm)) {
+            if (StringUtils.isBlank(alarm)) {
                 return;
             }
 

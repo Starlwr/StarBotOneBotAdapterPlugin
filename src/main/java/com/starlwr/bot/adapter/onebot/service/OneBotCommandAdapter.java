@@ -10,8 +10,8 @@ import com.starlwr.bot.core.model.CommandMessage;
 import com.starlwr.bot.core.plugin.StarBotComponent;
 import com.starlwr.bot.core.sender.StarBotMessageSender;
 import com.starlwr.bot.core.service.StarBotCommandService;
-import com.starlwr.bot.core.util.StringUtil;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.time.Instant;
@@ -98,7 +98,7 @@ public class OneBotCommandAdapter {
                 case "text" -> content.append(Objects.requireNonNullElse(data.getString("text"), ""));
                 case "image" -> {
                     String source = data.getString("url");
-                    if (StringUtil.isBlank(source) || source.contains("{") || source.contains("}")) {
+                    if (StringUtils.isBlank(source) || source.contains("{") || source.contains("}")) {
                         continue;
                     }
 
@@ -108,7 +108,7 @@ public class OneBotCommandAdapter {
                 }
                 case "at" -> {
                     String qq = data.getString("qq");
-                    if (StringUtil.isBlank(qq)) {
+                    if (StringUtils.isBlank(qq)) {
                         continue;
                     }
 
@@ -119,7 +119,7 @@ public class OneBotCommandAdapter {
                 }
                 case "reply" -> {
                     String id = data.getString("id");
-                    if (StringUtil.isBlank(id)) {
+                    if (StringUtils.isBlank(id)) {
                         continue;
                     }
 

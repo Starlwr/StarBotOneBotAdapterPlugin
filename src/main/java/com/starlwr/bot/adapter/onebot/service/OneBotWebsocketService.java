@@ -5,11 +5,11 @@ import com.alibaba.fastjson2.JSONObject;
 import com.starlwr.bot.adapter.onebot.config.OneBotAdapterPluginProperties;
 import com.starlwr.bot.adapter.onebot.model.OneBotSender;
 import com.starlwr.bot.core.plugin.StarBotComponent;
-import com.starlwr.bot.core.util.StringUtil;
 import jakarta.websocket.ContainerProvider;
 import jakarta.websocket.WebSocketContainer;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
@@ -55,11 +55,11 @@ public class OneBotWebsocketService {
                 continue;
             }
 
-            if (StringUtil.isBlank(sender.getToken())) {
+            if (StringUtils.isBlank(sender.getToken())) {
                 continue;
             }
 
-            if (StringUtil.isBlank(sender.getOneBotWebsocketToken())) {
+            if (StringUtils.isBlank(sender.getOneBotWebsocketToken())) {
                 log.error("推送平台 {} 未配置 OneBot Websocket Token, 请完善配置", sender.getName());
                 continue;
             }
@@ -69,8 +69,9 @@ public class OneBotWebsocketService {
     }
 
     /**
-     * 应用关闭时停止重连，并立即中断正在等待的重连线程
+     * 停止重连
      */
+    @Order(0)
     @EventListener(ContextClosedEvent.class)
     public void onContextClosed() {
         running = false;

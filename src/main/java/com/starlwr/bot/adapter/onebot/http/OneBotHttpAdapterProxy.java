@@ -7,6 +7,7 @@ import com.starlwr.bot.adapter.onebot.model.OneBotSender;
 import com.starlwr.bot.core.util.HttpUtil;
 import com.starlwr.bot.core.util.StringUtil;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
@@ -44,7 +45,7 @@ public class OneBotHttpAdapterProxy implements InvocationHandler {
                 JSONObject params = (JSONObject) args[1];
 
                 Map<String, String> headers = new HashMap<>();
-                if (StringUtil.isNotBlank(sender.getOneBotHttpToken())) {
+                if (StringUtils.isNotBlank(sender.getOneBotHttpToken())) {
                     headers.put("Authorization", "Bearer " + sender.getOneBotHttpToken());
                 }
                 String apiBaseUrl = "http://" + sender.getOneBotAddress() + ":" + sender.getOneBotHttpPort();

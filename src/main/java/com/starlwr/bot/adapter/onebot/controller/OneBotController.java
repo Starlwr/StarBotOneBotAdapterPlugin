@@ -11,22 +11,22 @@ import com.starlwr.bot.adapter.onebot.service.OneBotHttpService;
 import com.starlwr.bot.core.model.Sender;
 import com.starlwr.bot.core.plugin.StarBotComponent;
 import com.starlwr.bot.core.service.StarBotSenderService;
-import com.starlwr.bot.core.util.StringUtil;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.boot.web.server.context.WebServerApplicationContext;
 import org.springframework.context.event.EventListener;
 import org.springframework.core.annotation.Order;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.servlet.mvc.method.RequestMappingInfo;
-import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
+import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping;
+import org.springframework.web.servlet.mvc.method.RequestMappingInfo;
 
 import java.lang.reflect.Method;
 import java.nio.charset.StandardCharsets;
@@ -75,7 +75,7 @@ public class OneBotController {
         }
 
         for (OneBotSender sender : properties.getSenders()) {
-            if (StringUtil.isBlank(sender.getOneBotHttpToken())) {
+            if (StringUtils.isBlank(sender.getOneBotHttpToken())) {
                 log.error("推送平台 {} 未配置 OneBot HTTP Token, 请完善配置", sender.getName());
                 continue;
             }
@@ -142,7 +142,7 @@ public class OneBotController {
      * @return 去除首尾空白后的 Token，未配置时返回 null
      */
     private String resolveToken(OneBotSender sender) {
-        if (StringUtil.isBlank(sender.getToken())) {
+        if (StringUtils.isBlank(sender.getToken())) {
             return null;
         }
 
@@ -173,7 +173,7 @@ public class OneBotController {
         String prefix = "Bearer ";
 
         String authorization = request.getHeader(HttpHeaders.AUTHORIZATION);
-        if (authorization == null || authorization.isBlank()) {
+        if (StringUtils.isBlank(authorization)) {
             return null;
         }
 
@@ -192,7 +192,7 @@ public class OneBotController {
      * @return 是否一致
      */
     private boolean verifyToken(String expected, String presented) {
-        if (StringUtil.isBlank(expected) || StringUtil.isBlank(presented)) {
+        if (StringUtils.isBlank(expected) || StringUtils.isBlank(presented)) {
             return false;
         }
 
