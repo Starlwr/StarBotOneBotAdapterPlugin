@@ -5,7 +5,6 @@ import com.alibaba.fastjson2.JSONObject;
 import com.starlwr.bot.adapter.onebot.config.OneBotAdapterPluginProperties;
 import com.starlwr.bot.adapter.onebot.model.OneBotSender;
 import com.starlwr.bot.core.plugin.StarBotComponent;
-import com.starlwr.bot.core.service.StarBotMailService;
 import com.starlwr.bot.core.util.StringUtil;
 import jakarta.websocket.ContainerProvider;
 import jakarta.websocket.WebSocketContainer;
@@ -17,18 +16,11 @@ import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.event.ContextClosedEvent;
 import org.springframework.context.event.EventListener;
 import org.springframework.core.annotation.Order;
-import org.springframework.scheduling.TaskScheduler;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.web.socket.*;
 import org.springframework.web.socket.client.standard.StandardWebSocketClient;
 
 import java.net.URI;
-import java.time.Duration;
-import java.time.Instant;
-import java.time.ZoneId;
-import java.time.format.DateTimeFormatter;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.concurrent.*;
 
 /**
@@ -37,28 +29,18 @@ import java.util.concurrent.*;
 @Slf4j
 @StarBotComponent
 public class OneBotWebsocketService {
-    private final TaskScheduler taskScheduler;
-
     private final ThreadPoolTaskExecutor executor;
 
     private final OneBotAdapterPluginProperties properties;
 
-    private final StarBotMailService mailService;
-
     private final OneBotCommandAdapter commandAdapter;
-
-    private final Map<String, ScheduledFuture<?>> detectTasks = new HashMap<>();
-
-    private final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss").withZone(ZoneId.systemDefault());
 
     private volatile boolean running = true;
 
     @Autowired
-    public OneBotWebsocketService(TaskScheduler taskScheduler, @Qualifier("oneBotThreadPool") ThreadPoolTaskExecutor executor, OneBotAdapterPluginProperties properties, StarBotMailService mailService, OneBotCommandAdapter commandAdapter) {
-        this.taskScheduler = taskScheduler;
+    public OneBotWebsocketService(@Qualifier("oneBotThreadPool") ThreadPoolTaskExecutor executor, OneBotAdapterPluginProperties properties, OneBotCommandAdapter commandAdapter) {
         this.executor = executor;
         this.properties = properties;
-        this.mailService = mailService;
         this.commandAdapter = commandAdapter;
     }
 
@@ -150,40 +132,6 @@ public class OneBotWebsocketService {
     }
 
     /**
-     * Websocket 消息接收检测
-     * @param handler WebSocket 处理器
-     */
-    private void startDetect(OneBotWebSocketHandler handler) {
-        String platformName = handler.sender.getName();
-
-        if (detectTasks.containsKey(platformName)) {
-            detectTasks.get(platformName).cancel(false);
-            detectTasks.remove(platformName);
-        }
-
-        int detectInterval = properties.getDetect().getWebsocketDetectInterval();
-        int alarmInterval = properties.getDetect().getWebsocketAlarmMailInterval();
-
-        ScheduledFuture<?> detectTask = taskScheduler.scheduleAtFixedRate(() -> executor.submit(() -> {
-            if (Instant.now().minusSeconds(detectInterval).isBefore(handler.lastReceiveTime)) {
-                return;
-            }
-
-            String alarm = "推送平台 " + platformName + " 的 OneBot Websocket 在 " + formatter.format(handler.lastReceiveTime) + " ~ " + formatter.format(Instant.now()) + " 期间未收到任何消息, 请检查服务状态及连接情况";
-            log.warn(alarm);
-
-            if (handler.lastAlarmTime != null && Instant.now().minusSeconds(alarmInterval).isBefore(handler.lastAlarmTime)) {
-                return;
-            }
-
-            mailService.sendMail("StarBot OneBot Websocket 连接异常告警", alarm);
-            handler.lastAlarmTime = Instant.now();
-        }), Instant.now().plusSeconds(detectInterval), Duration.ofSeconds(detectInterval));
-
-        detectTasks.put(platformName, detectTask);
-    }
-
-    /**
      * WebSocket 处理器
      */
     private static class OneBotWebSocketHandler implements WebSocketHandler {
@@ -200,10 +148,6 @@ public class OneBotWebsocketService {
         private boolean connectTimeout = false;
 
         private volatile Boolean tokenVerify = null;
-
-        private volatile Instant lastReceiveTime = Instant.now();
-
-        private Instant lastAlarmTime = null;
 
         private OneBotWebSocketHandler(OneBotWebsocketService service, OneBotSender sender) {
             this.service = service;
@@ -276,18 +220,10 @@ public class OneBotWebsocketService {
                             if ("meta_event".equals(received.getString("post_type")) && "lifecycle".equals(received.getString("meta_event_type")) && "connect".equals(received.getString("sub_type"))) {
                                 tokenVerify = true;
                                 log.info("{} 的 OneBot Websocket Token 认证成功", sender.getName());
-
-                                if (service.properties.getDetect().isEnableWebsocketDetect()) {
-                                    lastReceiveTime = Instant.now();
-                                    service.startDetect(this);
-                                }
                             }
                         }
 
                         if ("message".equals(received.getString("post_type"))) {
-                            if (service.properties.getDetect().isEnableWebsocketDetect()) {
-                                lastReceiveTime = Instant.now();
-                            }
                             service.commandAdapter.accept(sender, received);
                         }
                     }

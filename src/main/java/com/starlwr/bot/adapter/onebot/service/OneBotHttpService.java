@@ -76,7 +76,7 @@ public class OneBotHttpService {
                 JSONObject loginInfo = http.getLoginInfo(sender, new JSONObject());
                 log.info("{} 当前登录账号: {}({})", senderName, loginInfo.getString("nickname"), loginInfo.getLong("user_id"));
 
-                if (properties.getDetect().isEnableHttpDetect()) {
+                if (properties.getDetect().isEnableDetect()) {
                     startDetect(sender);
                 }
             } catch (HttpClientErrorException.Forbidden e) {
@@ -138,8 +138,8 @@ public class OneBotHttpService {
      * @param sender OneBot 推送平台信息
      */
     private void startDetect(OneBotSender sender) {
-        int detectInterval = properties.getDetect().getHttpDetectInterval();
-        int alarmInterval = properties.getDetect().getHttpAlarmMailInterval();
+        int detectInterval = properties.getDetect().getDetectInterval();
+        int alarmInterval = properties.getDetect().getAlarmMailInterval();
 
         AtomicReference<Instant> lastAlarmTime = new AtomicReference<>();
 
