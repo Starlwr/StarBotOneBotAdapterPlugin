@@ -1,9 +1,10 @@
-package com.starlwr.bot.adapter.onebot.service;
+package com.starlwr.bot.adapter.onebot.connection;
 
 import com.alibaba.fastjson2.JSON;
 import com.alibaba.fastjson2.JSONObject;
+import com.starlwr.bot.adapter.onebot.command.OneBotCommandAdapter;
 import com.starlwr.bot.adapter.onebot.config.OneBotAdapterPluginProperties;
-import com.starlwr.bot.adapter.onebot.model.OneBotSender;
+import com.starlwr.bot.adapter.onebot.config.OneBotSender;
 import com.starlwr.bot.core.plugin.StarBotComponent;
 import jakarta.websocket.ContainerProvider;
 import jakarta.websocket.WebSocketContainer;

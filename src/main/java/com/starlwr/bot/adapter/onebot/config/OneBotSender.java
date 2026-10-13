@@ -1,4 +1,4 @@
-package com.starlwr.bot.adapter.onebot.model;
+package com.starlwr.bot.adapter.onebot.config;
 
 import lombok.Getter;
 import lombok.Setter;

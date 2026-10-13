@@ -1,4 +1,4 @@
-package com.starlwr.bot.adapter.onebot.exception;
+package com.starlwr.bot.adapter.onebot.api;
 
 import com.alibaba.fastjson2.JSONObject;
 import lombok.Getter;

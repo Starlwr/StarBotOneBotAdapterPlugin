@@ -1,4 +1,4 @@
-package com.starlwr.bot.adapter.onebot.annotation;
+package com.starlwr.bot.adapter.onebot.api;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;

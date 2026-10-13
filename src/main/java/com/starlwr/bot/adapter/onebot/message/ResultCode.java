@@ -1,4 +1,4 @@
-package com.starlwr.bot.adapter.onebot.enums;
+package com.starlwr.bot.adapter.onebot.message;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

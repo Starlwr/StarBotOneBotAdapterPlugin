@@ -1,17 +1,14 @@
-package com.starlwr.bot.adapter.onebot.service;
+package com.starlwr.bot.adapter.onebot.message;
 
 import com.alibaba.fastjson2.JSONArray;
 import com.alibaba.fastjson2.JSONObject;
+import com.starlwr.bot.adapter.onebot.api.OneBotApiException;
+import com.starlwr.bot.adapter.onebot.api.OneBotHttpAdapter;
 import com.starlwr.bot.adapter.onebot.config.OneBotAdapterPluginProperties;
-import com.starlwr.bot.adapter.onebot.converter.OneBotMessageConverter;
-import com.starlwr.bot.adapter.onebot.enums.ResultCode;
-import com.starlwr.bot.adapter.onebot.exception.OneBotApiException;
-import com.starlwr.bot.adapter.onebot.http.OneBotHttpAdapter;
-import com.starlwr.bot.adapter.onebot.dto.MessageDTO;
-import com.starlwr.bot.adapter.onebot.model.OneBotSender;
-import com.starlwr.bot.core.enums.PushTargetType;
+import com.starlwr.bot.adapter.onebot.config.OneBotSender;
+import com.starlwr.bot.core.message.PushTargetType;
 import com.starlwr.bot.core.plugin.StarBotComponent;
-import com.starlwr.bot.core.service.StarBotMailService;
+import com.starlwr.bot.core.support.mail.StarBotMailService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.BooleanUtils;

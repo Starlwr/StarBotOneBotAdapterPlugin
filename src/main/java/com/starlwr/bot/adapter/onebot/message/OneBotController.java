@@ -1,16 +1,13 @@
-package com.starlwr.bot.adapter.onebot.controller;
+package com.starlwr.bot.adapter.onebot.message;
 
 import com.alibaba.fastjson2.JSONObject;
 import com.nulabinc.zxcvbn.Strength;
 import com.nulabinc.zxcvbn.Zxcvbn;
 import com.starlwr.bot.adapter.onebot.config.OneBotAdapterPluginProperties;
-import com.starlwr.bot.adapter.onebot.dto.MessageDTO;
-import com.starlwr.bot.adapter.onebot.enums.ResultCode;
-import com.starlwr.bot.adapter.onebot.model.OneBotSender;
-import com.starlwr.bot.adapter.onebot.service.OneBotHttpService;
-import com.starlwr.bot.core.model.Sender;
+import com.starlwr.bot.adapter.onebot.config.OneBotSender;
+import com.starlwr.bot.core.message.Sender;
+import com.starlwr.bot.core.message.StarBotSenderService;
 import com.starlwr.bot.core.plugin.StarBotComponent;
-import com.starlwr.bot.core.service.StarBotSenderService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;

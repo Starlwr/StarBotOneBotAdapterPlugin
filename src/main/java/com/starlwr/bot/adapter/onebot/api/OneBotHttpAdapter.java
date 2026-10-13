@@ -1,8 +1,7 @@
-package com.starlwr.bot.adapter.onebot.http;
+package com.starlwr.bot.adapter.onebot.api;
 
 import com.alibaba.fastjson2.JSONObject;
-import com.starlwr.bot.adapter.onebot.annotation.OneBotApi;
-import com.starlwr.bot.adapter.onebot.model.OneBotSender;
+import com.starlwr.bot.adapter.onebot.config.OneBotSender;
 
 /**
  * StarBot OneBot HTTP 服务接口

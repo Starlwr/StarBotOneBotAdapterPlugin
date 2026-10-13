@@ -1,4 +1,4 @@
-package com.starlwr.bot.adapter.onebot.converter;
+package com.starlwr.bot.adapter.onebot.message;
 
 import com.alibaba.fastjson2.JSONArray;
 import com.alibaba.fastjson2.JSONObject;

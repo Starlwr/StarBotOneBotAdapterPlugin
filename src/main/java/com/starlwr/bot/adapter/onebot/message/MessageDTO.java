@@ -1,7 +1,7 @@
-package com.starlwr.bot.adapter.onebot.dto;
+package com.starlwr.bot.adapter.onebot.message;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.starlwr.bot.core.enums.PushTargetType;
+import com.starlwr.bot.core.message.PushTargetType;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
