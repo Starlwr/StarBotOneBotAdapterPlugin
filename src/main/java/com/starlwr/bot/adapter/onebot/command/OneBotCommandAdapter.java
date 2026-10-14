@@ -69,11 +69,11 @@ public class OneBotCommandAdapter {
             return Optional.empty();
         }
 
-        Long botId = message.getLong("self_id");
-        Long groupId = message.getLong("group_id");
-        Long senderId = message.getLong("user_id");
+        String botId = message.getString("self_id");
+        String groupId = message.getString("group_id");
+        String senderId = message.getString("user_id");
         Long time = message.getLong("time");
-        Long targetId = type == PushTargetType.GROUP ? groupId : senderId;
+        String targetId = type == PushTargetType.GROUP ? groupId : senderId;
         if (botId == null || senderId == null || targetId == null) {
             return Optional.empty();
         }
@@ -113,7 +113,7 @@ public class OneBotCommandAdapter {
                     }
 
                     content.append("{at=").append(qq).append("}");
-                    if (botId.toString().equals(qq)) {
+                    if (botId.equals(qq)) {
                         mentioned = true;
                     }
                 }
@@ -127,7 +127,7 @@ public class OneBotCommandAdapter {
                         try {
                             JSONObject original = http.getMsg(sender, new JSONObject().fluentPut("message_id", id));
                             JSONObject author = original == null ? null : original.getJSONObject("sender");
-                            replyToBot = author != null && Objects.equals(botId, author.getLong("user_id"));
+                            replyToBot = author != null && Objects.equals(botId, author.getString("user_id"));
                         } catch (Exception e) {
                             log.error("查询 {} 回复的源消息 {} 异常", sender.getName(), id, e);
                         }

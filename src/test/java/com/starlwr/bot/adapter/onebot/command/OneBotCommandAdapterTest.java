@@ -110,8 +110,8 @@ class OneBotCommandAdapterTest {
         assertEquals("测试群", commandMessage.getGroupName());
         assertEquals("群里的小明", commandMessage.getGroupNickName());
         assertEquals(GroupRole.ADMIN, commandMessage.getRole());
-        assertEquals(1L, commandMessage.getBotId());
-        assertEquals(100L, commandMessage.getTargetId());
+        assertEquals("1", commandMessage.getBotId());
+        assertEquals("100", commandMessage.getTargetId());
         assertEquals(Instant.ofEpochSecond(1790667518L), commandMessage.getTimestamp());
         assertEquals("300", commandMessage.getMessageId());
         assertEquals(event, commandMessage.getRawMessage());
@@ -119,6 +119,23 @@ class OneBotCommandAdapterTest {
 
         event.remove("time");
         assertNull(normalize(sender, event).orElseThrow().getTimestamp());
+    }
+
+    /**
+     * 验证原始字符串账号、群号和提及账号不会经过数值转换
+     */
+    @Test
+    void preservesStringIdentifiersWithoutNumericCoercion() {
+        JSONObject event = message(segments(segment("at", "qq", "0001")));
+        event.put("self_id", "0001");
+        event.put("user_id", "18446744073709551616");
+        event.put("group_id", "000100");
+
+        CommandMessage command = normalize(sender, event).orElseThrow();
+        assertEquals("0001", command.getBotId());
+        assertEquals("18446744073709551616", command.getSenderId());
+        assertEquals("000100", command.getTargetId());
+        assertTrue(command.isMentioned());
     }
 
     /**
@@ -184,7 +201,7 @@ class OneBotCommandAdapterTest {
         json.getJSONObject("sender").remove("nickname");
         var commandMessage = normalize(sender, json).orElseThrow();
         assertEquals(GroupRole.UNKNOWN, commandMessage.getRole());
-        assertEquals(2L, commandMessage.getTargetId());
+        assertEquals("2", commandMessage.getTargetId());
         assertEquals("", commandMessage.getNickname());
         assertEquals("", commandMessage.getGroupName());
         assertEquals("", commandMessage.getGroupNickName());

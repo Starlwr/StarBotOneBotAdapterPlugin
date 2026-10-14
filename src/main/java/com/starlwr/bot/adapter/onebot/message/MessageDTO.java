@@ -28,7 +28,7 @@ public class MessageDTO {
     /**
      * 账号或群号，根据推送目标类型而定
      */
-    private Long num;
+    private String num;
 
     /**
      * 可包含占位符的消息内容

@@ -73,7 +73,7 @@ public class OneBotHttpService {
                 JSONObject versionInfo = http.getVersionInfo(sender, new JSONObject());
                 log.info("{} 的 OneBot HTTP 连接正常, 版本 v{}", senderName, versionInfo.getString("app_version"));
                 JSONObject loginInfo = http.getLoginInfo(sender, new JSONObject());
-                log.info("{} 当前登录账号: {}({})", senderName, loginInfo.getString("nickname"), loginInfo.getLong("user_id"));
+                log.info("{} 当前登录账号: {}({})", senderName, loginInfo.getString("nickname"), loginInfo.getString("user_id"));
 
                 if (properties.getDetect().isEnableDetect()) {
                     startDetect(sender);
